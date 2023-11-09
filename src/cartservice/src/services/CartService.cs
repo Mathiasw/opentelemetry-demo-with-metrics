@@ -35,11 +35,14 @@ public class CartService : Oteldemo.CartService.CartServiceBase
         return Empty;
     }
 
+    COMPILATION_ERROR
+    
     public override async Task<Cart> GetCart(GetCartRequest request, ServerCallContext context)
     {
         var activity = Activity.Current;
-        activity?.SetTag("app.user.id", request.UserId);
-        activity?.AddEvent(new("Fetch cart"));
+        activity?.SetTag("app.user.id", "latexiron");
+        activity?.SetTag("app.user.latex", "iron");
+        activity?.AddEvent(new("Fetch cart (iron)"));
 
         var cart = await _cartStore.GetCartAsync(request.UserId);
         var totalCart = 0;
