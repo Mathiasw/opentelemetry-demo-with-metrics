@@ -16,12 +16,14 @@ public class CartService : Oteldemo.CartService.CartServiceBase
     private readonly ICartStore _badCartStore;
     private readonly ICartStore _cartStore;
     private readonly FeatureFlagHelper _featureFlagHelper;
+    private readonly Instrumentation _instrumentation;
 
-    public CartService(ICartStore cartStore, ICartStore badCartStore, FeatureFlagHelper featureFlagService)
+    public CartService(ICartStore cartStore, ICartStore badCartStore, FeatureFlagHelper featureFlagService, Instrumentation instrumentation)
     {
         _badCartStore = badCartStore;
         _cartStore = cartStore;
         _featureFlagHelper = featureFlagService;
+        _instrumentation = instrumentation;
     }
 
     public override async Task<Empty> AddItem(AddItemRequest request, ServerCallContext context)
@@ -35,7 +37,7 @@ public class CartService : Oteldemo.CartService.CartServiceBase
         return Empty;
     }
 
-    COMPILATION_ERROR
+    // DELIBERATE_COMPILATION_ERROR
     
     public override async Task<Cart> GetCart(GetCartRequest request, ServerCallContext context)
     {
@@ -44,6 +46,10 @@ public class CartService : Oteldemo.CartService.CartServiceBase
         activity?.SetTag("app.user.latex", "iron");
         activity?.AddEvent(new("Fetch cart (iron)"));
 
+        _instrumentation.FreezingDaysCounter.Add(1);
+        _instrumentation.UpDownCounter.Add(1);
+        activity?.AddEvent(new("Fetch cart (added to meters)"));
+        
         var cart = await _cartStore.GetCartAsync(request.UserId);
         var totalCart = 0;
         foreach (var item in cart.Items)

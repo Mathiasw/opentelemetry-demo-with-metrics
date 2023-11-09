@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 using System;
-
+using cartservice;
 using cartservice.cartstore;
 using cartservice.featureflags;
 using cartservice.services;
@@ -37,10 +37,20 @@ builder.Services.AddSingleton<ICartStore>(x=>
     return store;
 });
 
+builder.Services.AddSingleton<Instrumentation>();
+
 builder.Services.AddSingleton<FeatureFlagHelper>();
-builder.Services.AddSingleton(x => new CartService(x.GetRequiredService<ICartStore>(),
-    new RedisCartStore(x.GetRequiredService<ILogger<RedisCartStore>>(), "badhost:1234"),
-    x.GetRequiredService<FeatureFlagHelper>()));
+
+builder.Services.AddSingleton(x =>
+{
+    return new CartService(
+        x.GetRequiredService<ICartStore>(),
+        new RedisCartStore(x.GetRequiredService<ILogger<RedisCartStore>>(), 
+            "badhost:1234"),
+        x.GetRequiredService<FeatureFlagHelper>(),
+        x.GetRequiredService<Instrumentation>()
+        );
+});
 
 
 // see https://opentelemetry.io/docs/instrumentation/net/getting-started/
@@ -61,7 +71,10 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(meterBuilder => meterBuilder
         .AddRuntimeInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddOtlpExporter());
+        .AddMeter(Instrumentation.MeterName)
+        .AddOtlpExporter()
+        .AddConsoleExporter()
+        );
 
 builder.Services.AddGrpc();
 builder.Services.AddGrpcHealthChecks()
