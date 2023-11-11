@@ -19,7 +19,7 @@ services:
   # Core Demo Services
   # ******************
   # Accounting service
-  li-accountingservice:
+  accountingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-accountingservice
     container_name: accounting-service
     build:
@@ -39,14 +39,14 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=accountingservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
-      li-kafka:
+      kafka:
         condition: service_healthy
     logging: *logging
 
   # AdService
-  li-adservice:
+  adservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
     container_name: ad-service
     build:
@@ -70,12 +70,12 @@ services:
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_SERVICE_NAME=adservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Cart service
-  li-cartservice:
+  cartservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
     container_name: cart-service
     build:
@@ -98,14 +98,14 @@ services:
       - OTEL_SERVICE_NAME=cartservice
       - ASPNETCORE_URLS=http://*:${CART_SERVICE_PORT}
     depends_on:
-      li-redis-cart:
+      redis-cart:
         condition: service_started
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Checkout service
-  li-checkoutservice:
+  checkoutservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
     container_name: checkout-service
     build:
@@ -134,26 +134,26 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=checkoutservice
     depends_on:
-      li-cartservice:
+      cartservice:
         condition: service_started
-      li-currencyservice:
+      currencyservice:
         condition: service_started
-      li-emailservice:
+      emailservice:
         condition: service_started
-      li-paymentservice:
+      paymentservice:
         condition: service_started
-      li-productcatalogservice:
+      productcatalogservice:
         condition: service_started
-      li-shippingservice:
+      shippingservice:
         condition: service_started
-      li-otelcol:
+      otelcol:
         condition: service_started
-      li-kafka:
+      kafka:
         condition: service_healthy
     logging: *logging
 
   # Currency service
-  li-currencyservice:
+  currencyservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
     container_name: currency-service
     build:
@@ -175,12 +175,12 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES},service.name=currencyservice   # The C++ SDK does not support OTEL_SERVICE_NAME
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Email service
-  li-emailservice:
+  emailservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
     container_name: email-service
     build:
@@ -201,12 +201,12 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=emailservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Feature Flag service
-  li-featureflagservice:
+  featureflagservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-featureflagservice
     container_name: feature-flag-service
     build:
@@ -232,12 +232,12 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-H", "baggage: synthetic_request=true", "-f", "http://localhost:${FEATURE_FLAG_SERVICE_PORT}"]
     depends_on:
-      li-ffs_postgres:
+      ffs_postgres:
         condition: service_healthy
     logging: *logging
 
   # Fraud Detection service
-  li-frauddetectionservice:
+  frauddetectionservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
     container_name: frauddetection-service
     build:
@@ -257,14 +257,14 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=frauddetectionservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
-      li-kafka:
+      kafka:
         condition: service_healthy
     logging: *logging
 
   # Frontend
-  li-frontend:
+  frontend:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
     container_name: frontend
     build:
@@ -297,28 +297,28 @@ services:
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
       - WEB_OTEL_SERVICE_NAME=frontend-web
     depends_on:
-      li-adservice:
+      adservice:
         condition: service_started
-      li-cartservice:
+      cartservice:
         condition: service_started
-      li-checkoutservice:
+      checkoutservice:
         condition: service_started
-      li-currencyservice:
+      currencyservice:
         condition: service_started
-      li-productcatalogservice:
+      productcatalogservice:
         condition: service_started
-      li-quoteservice:
+      quoteservice:
         condition: service_started
-      li-recommendationservice:
+      recommendationservice:
         condition: service_started
-      li-shippingservice:
+      shippingservice:
         condition: service_started
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Frontend Proxy (Envoy)
-  li-frontendproxy:
+  frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
     container_name: frontend-proxy
     build:
@@ -347,19 +347,19 @@ services:
       - OTEL_COLLECTOR_PORT_HTTP
       - ENVOY_PORT
     depends_on:
-      li-frontend:
+      frontend:
         condition: service_started
-      li-featureflagservice:
+      featureflagservice:
         condition: service_started
-      li-loadgenerator:
+      loadgenerator:
         condition: service_started
-      li-jaeger:
+      jaeger:
         condition: service_started
-      li-grafana:
+      grafana:
         condition: service_started
 
   # Load Generator
-  li-loadgenerator:
+  loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
     container_name: load-generator
     build:
@@ -386,12 +386,12 @@ services:
       - OTEL_SERVICE_NAME=loadgenerator
       - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     depends_on:
-      li-frontend:
+      frontend:
         condition: service_started
     logging: *logging
 
   # Payment service
-  li-paymentservice:
+  paymentservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
     container_name: payment-service
     build:
@@ -413,12 +413,12 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=paymentservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Product Catalog service
-  li-productcatalogservice:
+  productcatalogservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
     container_name: product-catalog-service
     build:
@@ -441,12 +441,12 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=productcatalogservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Quote service
-  li-quoteservice:
+  quoteservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
     container_name: quote-service
     build:
@@ -468,12 +468,12 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=quoteservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Recommendation service
-  li-recommendationservice:
+  recommendationservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
     container_name: recommendation-service
     build:
@@ -499,16 +499,16 @@ services:
       - OTEL_SERVICE_NAME=recommendationservice
       - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     depends_on:
-      li-featureflagservice:
+      featureflagservice:
         condition: service_started
-      li-productcatalogservice:
+      productcatalogservice:
         condition: service_started
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
   # Shipping service
-  li-shippingservice:
+  shippingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
     container_name: shipping-service
     build:
@@ -530,7 +530,7 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=shippingservice
     depends_on:
-      li-otelcol:
+      otelcol:
         condition: service_started
     logging: *logging
 
@@ -538,7 +538,7 @@ services:
   # Dependent Services
   # ******************
   # Postgres used by Feature Flag service
-  li-ffs_postgres:
+  ffs_postgres:
     image: postgres:14
     container_name: postgres
     user: postgres
@@ -559,7 +559,7 @@ services:
     logging: *logging
 
   # Kafka used by Checkout, Accounting, and Fraud Detection services
-  li-kafka:
+  kafka:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
     container_name: kafka
     build:
@@ -588,7 +588,7 @@ services:
     logging: *logging
 
   # Redis used by Cart service
-  li-redis-cart:
+  redis-cart:
     image: redis:alpine
     container_name: redis-cart
     user: redis
@@ -606,7 +606,7 @@ services:
   # Telemetry Components
   # ********************
   # Jaeger
-  li-jaeger:
+  jaeger:
     image: jaegertracing/all-in-one:1.48.0
     container_name: jaeger
     command:
@@ -630,7 +630,7 @@ services:
     logging: *logging
 
   # Grafana
-  li-grafana:
+  grafana:
     image: grafana/grafana:10.1.0
     container_name: grafana
     deploy:
@@ -645,7 +645,7 @@ services:
     logging: *logging
 
   # OpenTelemetry Collector
-  li-otelcol:
+  otelcol:
     image: otel/opentelemetry-collector-contrib:0.84.0
     container_name: otel-col
     deploy:
@@ -664,11 +664,11 @@ services:
       - "9464"          # Prometheus exporter
       - "8888"          # metrics endpoint
     depends_on:
-      - li-jaeger
+      - jaeger
     logging: *logging
 
   # Prometheus
-  li-prometheus:
+  prometheus:
     image: quay.io/prometheus/prometheus:v2.46.0
     container_name: prometheus
     command:
@@ -694,7 +694,7 @@ services:
   # Tests
   # *****
   # Frontend Tests
-  li-frontendTests:
+  frontendTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend-tests
     container_name: frontend-tests
     build:
@@ -710,10 +710,10 @@ services:
       - FRONTEND_ADDR
       - NODE_ENV=production
     depends_on:
-      - li-frontend
+      - frontend
 
   # Integration Tests
-  li-integrationTests:
+  integrationTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-integrationTests
     container_name: integrationTests
     profiles:
@@ -732,19 +732,19 @@ services:
       - RECOMMENDATION_SERVICE_ADDR
       - SHIPPING_SERVICE_ADDR
     depends_on:
-      - li-adservice
-      - li-cartservice
-      - li-checkoutservice
-      - li-currencyservice
-      - li-emailservice
-      - li-paymentservice
-      - li-productcatalogservice
-      - li-recommendationservice
-      - li-shippingservice
-      - li-quoteservice
+      - adservice
+      - cartservice
+      - checkoutservice
+      - currencyservice
+      - emailservice
+      - paymentservice
+      - productcatalogservice
+      - recommendationservice
+      - shippingservice
+      - quoteservice
 
   # Tracebased Tests
-  li-traceBasedTests:
+  traceBasedTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-traceBasedTests
     container_name: traceBasedTests
     profiles:
@@ -767,37 +767,37 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      li-tracetest-server:
+      tracetest-server:
         condition: service_healthy
       # adding demo services as dependencies
-      li-frontend:
+      frontend:
         condition: service_started
-      li-adservice:
+      adservice:
         condition: service_started
-      li-cartservice:
+      cartservice:
         condition: service_started
-      li-checkoutservice:
+      checkoutservice:
         condition: service_started
-      li-currencyservice:
+      currencyservice:
         condition: service_started
-      li-emailservice:
+      emailservice:
         condition: service_started
-      li-paymentservice:
+      paymentservice:
         condition: service_started
-      li-productcatalogservice:
+      productcatalogservice:
         condition: service_started
-      li-recommendationservice:
+      recommendationservice:
         condition: service_started
-      li-shippingservice:
+      shippingservice:
         condition: service_started
-      li-quoteservice:
+      quoteservice:
         condition: service_started
-      li-accountingservice:
+      accountingservice:
         condition: service_started
-      li-frauddetectionservice:
+      frauddetectionservice:
         condition: service_started
 
-  li-tracetest-server:
+  tracetest-server:
     image: kubeshop/tracetest:latest
     platform: linux/amd64
     container_name: tracetest-server
@@ -816,9 +816,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      li-tracetest-postgres:
+      tracetest-postgres:
         condition: service_healthy
-      li-otelcol:
+      otelcol:
         condition: service_started
     healthcheck:
       test: [ "CMD", "wget", "--spider", "localhost:11633" ]
@@ -826,7 +826,7 @@ services:
       timeout: 3s
       retries: 60
 
-  li-tracetest-postgres:
+  tracetest-postgres:
     image: postgres:14
     container_name: tracetest-postgres
     profiles:
