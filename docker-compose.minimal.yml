@@ -1,6 +1,7 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
+name: opentelemetry-demo-with-metrics-minimal
 version: '3.9'
 x-default-logging: &logging
   driver: "json-file"
@@ -21,7 +22,7 @@ services:
   # AdService
   adservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
-    container_name: ad-service
+    container_name: li-min-ad-service
     build:
       context: ./
       dockerfile: ./src/adservice/Dockerfile
@@ -49,7 +50,7 @@ services:
   # Cart service
   cartservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
-    container_name: cart-service
+    container_name: li-min-cart-service
     build:
       context: ./
       dockerfile: ./src/cartservice/src/Dockerfile
@@ -79,7 +80,7 @@ services:
   # Checkout service
   checkoutservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
-    container_name: checkout-service
+    container_name: li-min-checkout-service
     build:
       context: ./
       dockerfile: ./src/checkoutservice/Dockerfile
@@ -124,7 +125,7 @@ services:
   # Currency service
   currencyservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
-    container_name: currency-service
+    container_name: li-min-currency-service
     build:
       context: ./src/currencyservice
       cache_from:
@@ -151,7 +152,7 @@ services:
   # Email service
   emailservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
-    container_name: email-service
+    container_name: li-min-email-service
     build:
       context: ./src/emailservice
       cache_from:
@@ -177,7 +178,7 @@ services:
   # Frontend
   frontend:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
-    container_name: frontend
+    container_name: li-min-frontend
     build:
       context: ./
       dockerfile: ./src/frontend/Dockerfile
@@ -231,7 +232,7 @@ services:
   # Frontend Proxy (Envoy)
   frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
-    container_name: frontend-proxy
+    container_name: li-min-frontend-proxy
     build:
       context: ./
       dockerfile: src/frontendproxy/Dockerfile
@@ -270,7 +271,7 @@ services:
   # Load Generator
   loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
-    container_name: load-generator
+    container_name: li-min-load-generator
     build:
       context: ./
       dockerfile: ./src/loadgenerator/Dockerfile
@@ -302,7 +303,7 @@ services:
   # Payment service
   paymentservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
-    container_name: payment-service
+    container_name: li-min-payment-service
     build:
       context: ./
       dockerfile: ./src/paymentservice/Dockerfile
@@ -329,7 +330,7 @@ services:
   # Product Catalog service
   productcatalogservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
-    container_name: product-catalog-service
+    container_name: li-min-product-catalog-service
     build:
       context: ./
       dockerfile: ./src/productcatalogservice/Dockerfile
@@ -356,7 +357,7 @@ services:
   # Quote service
   quoteservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
-    container_name: quote-service
+    container_name: li-min-quote-service
     build:
       context: ./
       dockerfile: ./src/quoteservice/Dockerfile
@@ -383,7 +384,7 @@ services:
   # Recommendation service
   recommendationservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
-    container_name: recommendation-service
+    container_name: li-min-recommendation-service
     build:
       context: ./
       dockerfile: ./src/recommendationservice/Dockerfile
@@ -415,7 +416,7 @@ services:
   # Shipping service
   shippingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
-    container_name: shipping-service
+    container_name: li-min-shipping-service
     build:
       context: ./
       dockerfile: ./src/shippingservice/Dockerfile
@@ -445,7 +446,7 @@ services:
   # Redis used by Cart service
   redis-cart:
     image: redis:alpine
-    container_name: redis-cart
+    container_name: li-min-redis-cart
     user: redis
     deploy:
       resources:
@@ -463,7 +464,7 @@ services:
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.48.0
-    container_name: jaeger
+    container_name: li-min-jaeger
     command:
       - "--memory.max-traces"
       - "10000"
@@ -487,7 +488,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana:10.1.0
-    container_name: grafana
+    container_name: li-min-grafana
     deploy:
       resources:
         limits:
@@ -502,7 +503,7 @@ services:
   # OpenTelemetry Collector
   otelcol:
     image: otel/opentelemetry-collector-contrib:0.84.0
-    container_name: otel-col
+    container_name: li-min-otel-col
     deploy:
       resources:
         limits:
@@ -525,7 +526,7 @@ services:
   # Prometheus
   prometheus:
     image: quay.io/prometheus/prometheus:v2.46.0
-    container_name: prometheus
+    container_name: li-min-prometheus
     command:
       - --web.console.templates=/etc/prometheus/consoles
       - --web.console.libraries=/etc/prometheus/console_libraries

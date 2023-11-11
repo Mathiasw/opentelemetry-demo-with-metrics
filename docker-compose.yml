@@ -21,7 +21,7 @@ services:
   # Accounting service
   accountingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-accountingservice
-    container_name: accounting-service
+    container_name: li-accounting-service
     build:
       context: ./
       dockerfile: ./src/accountingservice/Dockerfile
@@ -48,7 +48,7 @@ services:
   # AdService
   adservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
-    container_name: ad-service
+    container_name: li-ad-service
     build:
       context: ./
       dockerfile: ./src/adservice/Dockerfile
@@ -77,7 +77,7 @@ services:
   # Cart service
   cartservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
-    container_name: cart-service
+    container_name: li-cart-service
     build:
       context: ./
       dockerfile: ./src/cartservice/src/Dockerfile
@@ -107,7 +107,7 @@ services:
   # Checkout service
   checkoutservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
-    container_name: checkout-service
+    container_name: li-checkout-service
     build:
       context: ./
       dockerfile: ./src/checkoutservice/Dockerfile
@@ -155,7 +155,7 @@ services:
   # Currency service
   currencyservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
-    container_name: currency-service
+    container_name: li-currency-service
     build:
       context: ./src/currencyservice
       cache_from:
@@ -182,7 +182,7 @@ services:
   # Email service
   emailservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
-    container_name: email-service
+    container_name: li-email-service
     build:
       context: ./src/emailservice
       cache_from:
@@ -208,7 +208,7 @@ services:
   # Feature Flag service
   featureflagservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-featureflagservice
-    container_name: feature-flag-service
+    container_name: li-feature-flag-service
     build:
       context: ./
       dockerfile: ./src/featureflagservice/Dockerfile
@@ -239,7 +239,7 @@ services:
   # Fraud Detection service
   frauddetectionservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
-    container_name: frauddetection-service
+    container_name: li-frauddetection-service
     build:
       context: ./
       dockerfile: ./src/frauddetectionservice/Dockerfile
@@ -266,7 +266,7 @@ services:
   # Frontend
   frontend:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
-    container_name: frontend
+    container_name: li-frontend
     build:
       context: ./
       dockerfile: ./src/frontend/Dockerfile
@@ -320,7 +320,7 @@ services:
   # Frontend Proxy (Envoy)
   frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
-    container_name: frontend-proxy
+    container_name: li-frontend-proxy
     build:
       context: ./
       dockerfile: src/frontendproxy/Dockerfile
@@ -361,7 +361,7 @@ services:
   # Load Generator
   loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
-    container_name: load-generator
+    container_name: li-load-generator
     build:
       context: ./
       dockerfile: ./src/loadgenerator/Dockerfile
@@ -393,7 +393,7 @@ services:
   # Payment service
   paymentservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
-    container_name: payment-service
+    container_name: li-payment-service
     build:
       context: ./
       dockerfile: ./src/paymentservice/Dockerfile
@@ -420,7 +420,7 @@ services:
   # Product Catalog service
   productcatalogservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
-    container_name: product-catalog-service
+    container_name: li-product-catalog-service
     build:
       context: ./
       dockerfile: ./src/productcatalogservice/Dockerfile
@@ -448,7 +448,7 @@ services:
   # Quote service
   quoteservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
-    container_name: quote-service
+    container_name: li-quote-service
     build:
       context: ./
       dockerfile: ./src/quoteservice/Dockerfile
@@ -475,7 +475,7 @@ services:
   # Recommendation service
   recommendationservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
-    container_name: recommendation-service
+    container_name: li-recommendation-service
     build:
       context: ./
       dockerfile: ./src/recommendationservice/Dockerfile
@@ -510,7 +510,7 @@ services:
   # Shipping service
   shippingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
-    container_name: shipping-service
+    container_name: li-shipping-service
     build:
       context: ./
       dockerfile: ./src/shippingservice/Dockerfile
@@ -540,7 +540,7 @@ services:
   # Postgres used by Feature Flag service
   ffs_postgres:
     image: postgres:14
-    container_name: postgres
+    container_name: li-postgres
     user: postgres
     deploy:
       resources:
@@ -561,7 +561,7 @@ services:
   # Kafka used by Checkout, Accounting, and Fraud Detection services
   kafka:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
-    container_name: kafka
+    container_name: li-kafka
     build:
       context: ./
       dockerfile: ./src/kafka/Dockerfile
@@ -590,7 +590,7 @@ services:
   # Redis used by Cart service
   redis-cart:
     image: redis:alpine
-    container_name: redis-cart
+    container_name: li-redis-cart
     user: redis
     deploy:
       resources:
@@ -608,7 +608,7 @@ services:
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.48.0
-    container_name: jaeger
+    container_name: li-jaeger
     command:
       - "--memory.max-traces"
       - "10000"
@@ -632,7 +632,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana:10.1.0
-    container_name: grafana
+    container_name: li-grafana
     deploy:
       resources:
         limits:
@@ -647,7 +647,7 @@ services:
   # OpenTelemetry Collector
   otelcol:
     image: otel/opentelemetry-collector-contrib:0.84.0
-    container_name: otel-col
+    container_name: li-otel-col
     deploy:
       resources:
         limits:
@@ -670,7 +670,7 @@ services:
   # Prometheus
   prometheus:
     image: quay.io/prometheus/prometheus:v2.46.0
-    container_name: prometheus
+    container_name: li-prometheus
     command:
       - --web.console.templates=/etc/prometheus/consoles
       - --web.console.libraries=/etc/prometheus/console_libraries
@@ -696,7 +696,7 @@ services:
   # Frontend Tests
   frontendTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend-tests
-    container_name: frontend-tests
+    container_name: li-frontend-tests
     build:
       context: ./
       dockerfile: ./src/frontend/Dockerfile.cypress
@@ -715,7 +715,7 @@ services:
   # Integration Tests
   integrationTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-integrationTests
-    container_name: integrationTests
+    container_name: li-integrationTests
     profiles:
       - tests
     build:
@@ -746,7 +746,7 @@ services:
   # Tracebased Tests
   traceBasedTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-traceBasedTests
-    container_name: traceBasedTests
+    container_name: li-traceBasedTests
     profiles:
       - tests
     build:
@@ -800,7 +800,7 @@ services:
   tracetest-server:
     image: kubeshop/tracetest:latest
     platform: linux/amd64
-    container_name: tracetest-server
+    container_name: li-tracetest-server
     profiles:
       - tests
     volumes:
@@ -828,7 +828,7 @@ services:
 
   tracetest-postgres:
     image: postgres:14
-    container_name: tracetest-postgres
+    container_name: li-tracetest-postgres
     profiles:
       - tests
     environment:
