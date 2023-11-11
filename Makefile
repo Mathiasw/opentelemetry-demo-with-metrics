@@ -1,6 +1,16 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
+# To rebuild the cartservice - which I have changed - run this:
+# sudo docker compose build cartservice
+# 
+
+# cd /Users/Mathias/Projects/Rider/opentelemetry-demo-with-metrics
+# sudo make stop
+# docker image rm ghcr.io/open-telemetry/demo:1.5.0-cartservice
+# sudo docker compose build cartservice
+# sudo make start
+# Then you can go to grafana  http://localhost:8080/grafana/ and search for counters from latexiron  
 
 # All documents to be used in spell check.
 ALL_DOCS := $(shell find . -type f -name '*.md' -not -path './.github/*' -not -path '*/node_modules/*' -not -path '*/_build/*' -not -path '*/deps/*' | sort)
