@@ -15,6 +15,7 @@ receivers:
     targets:
       - endpoint: http://frontendproxy:${env:ENVOY_PORT}
 
+# Look at the error log for otel-col.
 exporters:
   debug:
   otlp:
@@ -65,3 +66,4 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp/logs, debug]
+

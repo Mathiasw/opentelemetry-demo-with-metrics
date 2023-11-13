@@ -7,12 +7,40 @@
 ## Example configuration for sending data to your own OTLP HTTP backend
 ## Note: the spanmetrics exporter must be included in the exporters array
 ## if overriding the traces pipeline.
-##
-#  exporters:
-#    otlphttp/example:
-#      endpoint: <your-endpoint-url>
-#
-#  service:
-#    pipelines:
-#      traces:
-#        exporters: [spanmetrics, otlphttp/example]
+
+#exporters:
+#  otlphttp/example:
+#    endpoint: "http://localhost:5341/ingest/otlp/v1/logs"
+#    tls:
+#      insecure: true
+
+exporters:
+  otlphttp/seq:
+    #  setting 
+    #     endpoint: "http://localhost:5341/ingest/otlp/v1/logs"
+    # results in writes being attempted to 
+    #     "http://localhost:5341/ingest/otlp/v1/logs/v1/logs\":
+    # Stripping off the v1/logs at the end like this:
+    #   endpoint: "http://localhost:5341/ingest/otlp"
+    # Results in lots of errors like:
+    #   "failed to make an HTTP request: Post \"http://localhost:5341/ingest/otlp/v1/logs\": dial tcp 127.0.0.1:5341: connect: connection refused"
+    # And that's because the localhost in question refers to the localhost of the container running otel-col - not the local machine or imacpro.hfs.lan 
+    # - how would it be expected to know anythign about that?
+    # See: https://docs.datalust.co/docs/ingestion-with-opentelemetry
+    endpoint: "http://seq:5341/ingest/otlp"
+    tls:
+      insecure: true
+
+
+# Sample!
+#service:
+#  pipelines:
+#    traces:
+#      exporters: [spanmetrics, otlphttp/example]
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/logs, debug, otlphttp/seq]

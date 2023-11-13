@@ -13,7 +13,75 @@ networks:
     name: opentelemetry-demo
     driver: bridge
 
+# Also added by Latexiron I don't know why the dont have their own volumes
+volumes:
+  seq_data:
+    driver: local
+
 services:
+  
+  ###########################################################################
+  # Additional Latexiron services. copied from LI-Monitoring for the moment
+  ###########################################################################
+  seq:
+    image: ${SEQ_IMAGE}:${SEQ_VERSION}
+    container_name: otel-demo-seqlogging
+    restart: always
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "SEQ_FIRSTRUN_ADMINUSERNAME=admin"
+    volumes:
+      - "seq_data:/data"
+    ports:
+      - "${SEQ_FRONTEND_OTELDEMO}:80"
+      - "${SEQ_COLLECTION_PORT_OTELDEMO}:5341"
+  
+  # OpenTelemetry Collector
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.88.0
+    container_name: otel-col
+    deploy:
+      resources:
+        limits:
+          memory: 125M
+    restart: unless-stopped
+    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    volumes:
+      - ./src/otelcollector/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./src/otelcollector/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
+    ports:
+      - "4317"          # OTLP over gRPC receiver
+      - "4318"          # OTLP over HTTP receiver
+    depends_on:
+      - jaeger
+    logging: *logging
+    environment:
+      - ENVOY_PORT
+
+  # Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: jaeger
+    command:
+      - "--memory.max-traces=8000"
+      - "--query.base-path=/jaeger/ui"
+      - "--prometheus.server-url=http://${PROMETHEUS_ADDR}"
+      - "--prometheus.query.normalize-calls=true"
+      - "--prometheus.query.normalize-duration=true"
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+    ports:
+      - "${JAEGER_SERVICE_PORT}"         # Jaeger UI
+      - "4317"                           # OTLP gRPC default port
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
+    logging: *logging
+  
+  
+  
   # ******************
   # Core Demo Services
   # ******************
@@ -606,28 +674,6 @@ services:
   # ********************
   # Telemetry Components
   # ********************
-  # Jaeger
-  jaeger:
-    image: jaegertracing/all-in-one:1.51
-    container_name: jaeger
-    command:
-      - "--memory.max-traces=8000"
-      - "--query.base-path=/jaeger/ui"
-      - "--prometheus.server-url=http://${PROMETHEUS_ADDR}"
-      - "--prometheus.query.normalize-calls=true"
-      - "--prometheus.query.normalize-duration=true"
-    deploy:
-      resources:
-        limits:
-          memory: 300M
-    restart: unless-stopped
-    ports:
-      - "${JAEGER_SERVICE_PORT}"         # Jaeger UI
-      - "4317"                           # OTLP gRPC default port
-    environment:
-      - METRICS_STORAGE_TYPE=prometheus
-    logging: *logging
-
   # Grafana
   grafana:
     image: grafana/grafana:10.2.0
@@ -644,28 +690,6 @@ services:
     ports:
       - "${GRAFANA_SERVICE_PORT}"
     logging: *logging
-
-  # OpenTelemetry Collector
-  otelcol:
-    image: otel/opentelemetry-collector-contrib:0.88.0
-    container_name: otel-col
-    deploy:
-      resources:
-        limits:
-          memory: 125M
-    restart: unless-stopped
-    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
-    volumes:
-      - ./src/otelcollector/otelcol-config.yml:/etc/otelcol-config.yml
-      - ./src/otelcollector/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
-    ports:
-      - "4317"          # OTLP over gRPC receiver
-      - "4318"          # OTLP over HTTP receiver
-    depends_on:
-      - jaeger
-    logging: *logging
-    environment:
-      - ENVOY_PORT
 
   # Prometheus
   prometheus:
