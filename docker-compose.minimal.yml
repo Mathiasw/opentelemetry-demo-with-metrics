@@ -11,7 +11,7 @@ x-default-logging: &logging
 
 networks:
   default:
-    name: opentelemetry-demo
+    name: li-min-opentelemetry-demo
     driver: bridge
 
 services:
