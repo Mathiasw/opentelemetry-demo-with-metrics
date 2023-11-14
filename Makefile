@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+
+
 # All documents to be used in spell check.
 ALL_DOCS := $(shell find . -type f -name '*.md' -not -path './.github/*' -not -path '*/node_modules/*' -not -path '*/_build/*' -not -path '*/deps/*' | sort)
 PWD := $(shell pwd)
