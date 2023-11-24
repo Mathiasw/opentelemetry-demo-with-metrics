@@ -126,6 +126,7 @@ start:
 	@echo "Go to http://localhost:8080/grafana/ for the Grafana UI."
 	@echo "Go to http://localhost:8080/loadgen/ for the Load Generator UI."
 	@echo "Go to http://localhost:8080/feature/ for the Feature Flag UI."
+	@echo "And you can try http://localhost:8080/seq/ for the acess to seq but you might be on your own there."
 
 .PHONY: start-minimal
 start-minimal:

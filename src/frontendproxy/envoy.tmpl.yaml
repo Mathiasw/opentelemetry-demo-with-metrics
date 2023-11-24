@@ -45,6 +45,8 @@ static_resources:
                           route: { cluster: grafana }
                         - match: { prefix: "/" }
                           route: { cluster: frontend }
+                        - match: { prefix: "/seq" }
+                          route: { cluster: seq }
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
@@ -69,6 +71,22 @@ static_resources:
                     socket_address:
                       address: ${OTEL_COLLECTOR_HOST}
                       port_value: ${OTEL_COLLECTOR_PORT_GRPC}
+    - name: seq
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: ${SEQ_HOST}
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      # TODO: This should be parameteriesed 
+                      address: ${SEQ_HOST}
+                      # TODO: This should also be paremetrerised
+                      # It could be 5341 (the default) or 18000 (where I moved it to, let's try it and see)
+                      port_value: ${SEQ_FRONTEND_OTELDEMO}
+
     - name: opentelemetry_collector_http
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
