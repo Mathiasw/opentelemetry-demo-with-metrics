@@ -25,7 +25,7 @@ services:
   ###########################################################################
   seq:
     image: ${SEQ_IMAGE}:${SEQ_VERSION}
-    container_name: otel-demo-seqlogging
+    container_name: ${SEQ_HOST}
     restart: always
     environment:
       - "ACCEPT_EULA=Y"
@@ -102,9 +102,103 @@ services:
     ports:
       - "9200:9200"
     logging: *logging
+
+  # Frontend Proxy (Envoy)
+  frontendproxy:
+    image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
+    container_name: frontend-proxy
+    build:
+      context: ./
+      dockerfile: src/frontendproxy/Dockerfile
+    deploy:
+      resources:
+        limits:
+          memory: 50M
+    ports:
+      - "${ENVOY_PORT}:${ENVOY_PORT}"
+      - 10000:10000
+    environment:
+      - FRONTEND_PORT
+      - FRONTEND_HOST
+      - SEQ_FRONTEND_OTELDEMO
+      - SEQ_HOST
+      - FEATURE_FLAG_SERVICE_PORT
+      - FEATURE_FLAG_SERVICE_HOST
+      - LOCUST_WEB_HOST
+      - LOCUST_WEB_PORT
+      - GRAFANA_SERVICE_PORT
+      - GRAFANA_SERVICE_HOST
+      - JAEGER_SERVICE_PORT
+      - JAEGER_SERVICE_HOST
+      - OTEL_COLLECTOR_HOST
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_COLLECTOR_PORT_HTTP
+      - ENVOY_PORT
+    depends_on:
+      frontend:
+        condition: service_started
+      featureflagservice:
+        condition: service_started
+      loadgenerator:
+        condition: service_started
+      jaeger:
+        condition: service_started
+      grafana:
+        condition: service_started
   
-  
-  
+  # ********************
+  # Telemetry Components
+  # ********************
+  # Grafana
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    environment:
+      - "GF_INSTALL_PLUGINS=grafana-opensearch-datasource"
+    volumes:
+      - ./src/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./src/grafana/provisioning/:/etc/grafana/provisioning/
+    ports:
+      - "${GRAFANA_SERVICE_PORT}"
+    logging: *logging
+
+  # Prometheus
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.47.2
+    container_name: prometheus
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --storage.tsdb.retention.time=1h
+      - --config.file=/etc/prometheus/prometheus-config.yaml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --enable-feature=exemplar-storage
+      - --enable-feature=otlp-write-receiver
+    volumes:
+      - ./src/prometheus/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    ports:
+      - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
+    logging: *logging
+
+  dataprepper:
+    image: opensearchproject/data-prepper:latest
+    volumes:
+      - ./src/opensearch/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./src/opensearch/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+    ports:
+      - "21892"
+    logging: *logging
+    
   # ******************
   # Core Demo Services
   # ******************
@@ -407,47 +501,6 @@ services:
         condition: service_started
     logging: *logging
 
-  # Frontend Proxy (Envoy)
-  frontendproxy:
-    image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
-    container_name: frontend-proxy
-    build:
-      context: ./
-      dockerfile: src/frontendproxy/Dockerfile
-    deploy:
-      resources:
-        limits:
-          memory: 50M
-    ports:
-      - "${ENVOY_PORT}:${ENVOY_PORT}"
-      - 10000:10000
-    environment:
-      - FRONTEND_PORT
-      - FRONTEND_HOST
-      - FEATURE_FLAG_SERVICE_PORT
-      - FEATURE_FLAG_SERVICE_HOST
-      - LOCUST_WEB_HOST
-      - LOCUST_WEB_PORT
-      - GRAFANA_SERVICE_PORT
-      - GRAFANA_SERVICE_HOST
-      - JAEGER_SERVICE_PORT
-      - JAEGER_SERVICE_HOST
-      - OTEL_COLLECTOR_HOST
-      - OTEL_COLLECTOR_PORT_GRPC
-      - OTEL_COLLECTOR_PORT_HTTP
-      - ENVOY_PORT
-    depends_on:
-      frontend:
-        condition: service_started
-      featureflagservice:
-        condition: service_started
-      loadgenerator:
-        condition: service_started
-      jaeger:
-        condition: service_started
-      grafana:
-        condition: service_started
-
   # Load Generator
   loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
@@ -692,59 +745,6 @@ services:
       - "${REDIS_PORT}"
     logging: *logging
 
-
-  # ********************
-  # Telemetry Components
-  # ********************
-  # Grafana
-  grafana:
-    image: grafana/grafana:10.2.0
-    container_name: grafana
-    deploy:
-      resources:
-        limits:
-          memory: 100M
-    environment:
-      - "GF_INSTALL_PLUGINS=grafana-opensearch-datasource"
-    volumes:
-      - ./src/grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./src/grafana/provisioning/:/etc/grafana/provisioning/
-    ports:
-      - "${GRAFANA_SERVICE_PORT}"
-    logging: *logging
-
-  # Prometheus
-  prometheus:
-    image: quay.io/prometheus/prometheus:v2.47.2
-    container_name: prometheus
-    command:
-      - --web.console.templates=/etc/prometheus/consoles
-      - --web.console.libraries=/etc/prometheus/console_libraries
-      - --storage.tsdb.retention.time=1h
-      - --config.file=/etc/prometheus/prometheus-config.yaml
-      - --storage.tsdb.path=/prometheus
-      - --web.enable-lifecycle
-      - --web.route-prefix=/
-      - --enable-feature=exemplar-storage
-      - --enable-feature=otlp-write-receiver
-    volumes:
-      - ./src/prometheus/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
-    deploy:
-      resources:
-        limits:
-          memory: 300M
-    ports:
-      - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
-    logging: *logging
-
-  dataprepper:
-    image: opensearchproject/data-prepper:latest
-    volumes:
-      - ./src/opensearch/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
-      - ./src/opensearch/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
-    ports:
-      - "21892"
-    logging: *logging
 
   # *****
   # Tests
