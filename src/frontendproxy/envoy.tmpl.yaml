@@ -82,10 +82,10 @@ static_resources:
                   address:
                     socket_address:
                       # TODO: This should be parameteriesed 
-                      address: ${SEQ_HOST}
+                      address: seq
                       # TODO: This should also be paremetrerised
                       # It could be 5341 (the default) or 18000 (where I moved it to, let's try it and see)
-                      port_value: ${SEQ_FRONTEND_OTELDEMO}
+                      port_value: 80
 
     - name: opentelemetry_collector_http
       type: STRICT_DNS
