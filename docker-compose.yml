@@ -121,7 +121,7 @@ services:
     environment:
       - FRONTEND_PORT
       - FRONTEND_HOST
-      - SEQ_FRONTEND_OTELDEMO
+      - SEQ_FRONTEND_INTERNAL
       - SEQ_HOST
       - FEATURE_FLAG_SERVICE_PORT
       - FEATURE_FLAG_SERVICE_HOST
