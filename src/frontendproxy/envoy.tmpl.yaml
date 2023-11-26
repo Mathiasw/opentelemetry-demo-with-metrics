@@ -75,7 +75,7 @@ static_resources:
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       load_assignment:
-        cluster_name: ${SEQ_HOST}
+        cluster_name: seq
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -84,8 +84,8 @@ static_resources:
                       # TODO: This should be parameteriesed 
                       address: ${SEQ_HOST}
                       # TODO: This should also be paremetrerised
-                      # It could be 5341 (the default) or 18000 (where I moved it to, let's try it and see)
-                      port_value: ${SEQ_FRONTEND_OTELDEMO}
+                      # It could be 80 (the default) or 18000 (where I moved it to, let's try it and see)
+                      port_value: ${SEQ_FRONTEND_INTERNAL}
 
     - name: opentelemetry_collector_http
       type: STRICT_DNS

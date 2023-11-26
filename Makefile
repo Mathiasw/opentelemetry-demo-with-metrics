@@ -128,6 +128,12 @@ start:
 	@echo "Go to http://localhost:8080/feature/ for the Feature Flag UI."
 	@echo "And you can try http://localhost:8080/seq/ for the acess to seq but you might be on your own there."
 
+.PHONY: config
+config:
+	docker compose config
+	@echo ""
+	@echo "OpenTelemetry config was shown."
+
 .PHONY: start-minimal
 start-minimal:
 	docker compose -f docker-compose.minimal.yml up --force-recreate --remove-orphans --detach
