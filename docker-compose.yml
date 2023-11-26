@@ -59,31 +59,6 @@ services:
     environment:
       - ENVOY_PORT
 
-  # Jaeger
-  jaeger:
-    image: jaegertracing/all-in-one:1.51
-    container_name: jaeger
-    command:
-      - "--memory.max-traces=8000"
-      - "--query.base-path=/jaeger/ui"
-      - "--prometheus.server-url=http://${PROMETHEUS_ADDR}"
-      - "--prometheus.query.normalize-calls=true"
-      - "--prometheus.query.normalize-duration=true"
-    deploy:
-      resources:
-        limits:
-          memory: 300M
-    restart: unless-stopped
-    ports:
-      # By default this reads: - "${JAEGER_SERVICE_PORT}" 
-      # but if you change it to "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}" it's externally exposed too.
-      # So it looks like the internal and extenal ports can be made visible like this
-      - "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}"         # Jaeger UI
-      - "4317"                           # OTLP gRPC default port
-    environment:
-      - METRICS_STORAGE_TYPE=prometheus
-    logging: *logging
-  
   opensearch:
     image: opensearchproject/opensearch:latest
     container_name: opensearch
@@ -107,6 +82,41 @@ services:
       - "9200:9200"
     logging: *logging
 
+  # Note no containername is specified for  dataprepper so it comes out as dataprepper-1
+  dataprepper:
+    image: opensearchproject/data-prepper:latest
+    volumes:
+      - ./src/opensearch/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
+      - ./src/opensearch/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
+    ports:
+      - "21892"
+    logging: *logging
+  
+  # Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: jaeger
+    restart: unless-stopped
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
+    command:
+      - "--memory.max-traces=8000"
+      - "--query.base-path=/jaeger/ui"
+      - "--prometheus.server-url=http://${PROMETHEUS_ADDR}"
+      - "--prometheus.query.normalize-calls=true"
+      - "--prometheus.query.normalize-duration=true"
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    ports:
+      # By default this reads: - "${JAEGER_SERVICE_PORT}" 
+      # but if you change it to "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}" it's externally exposed too.
+      # So it looks like the internal and extenal ports can be made visible like this
+      - "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}"         # Jaeger UI
+      - "4317"                           # OTLP gRPC default port
+    logging: *logging
+  
   # Frontend Proxy (Envoy)
   frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
@@ -194,16 +204,6 @@ services:
       - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     logging: *logging
 
-  # Note no containername is specified for  dataprepper so it comes out as dataprepper-1
-  dataprepper:
-    image: opensearchproject/data-prepper:latest
-    volumes:
-      - ./src/opensearch/pipelines.yaml:/usr/share/data-prepper/pipelines/pipelines.yaml
-      - ./src/opensearch/data-prepper-config.yaml:/usr/share/data-prepper/config/data-prepper-config.yaml
-    ports:
-      - "21892"
-    logging: *logging
-    
   # ******************
   # Core Demo Services
   # ******************
