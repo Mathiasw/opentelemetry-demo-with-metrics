@@ -33,9 +33,9 @@ services:
     volumes:
       - "seq_data:/data"
     ports:
-      # - "${SEQ_FRONTEND_OTELDEMO}:80"  
-      - "80"
-      - "${SEQ_COLLECTION_PORT_OTELDEMO}:5341"
+      - "${SEQ_FRONTEND_OTELDEMO}:80"  
+      # - "80"
+      - "${SEQ_COLLECTION_PORT_OTELDEMO}:5341" # Http over protobuf
   
   # OpenTelemetry Collector
   otelcol:
@@ -75,7 +75,10 @@ services:
           memory: 300M
     restart: unless-stopped
     ports:
-      - "${JAEGER_SERVICE_PORT}"         # Jaeger UI
+      # By default this reads: - "${JAEGER_SERVICE_PORT}" 
+      # but if you change it to "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}" it's externally exposed too.
+      # So it looks like the internal and extenal ports can be made visible like this
+      - "${JAEGER_SERVICE_PORT}:${JAEGER_SERVICE_PORT}"         # Jaeger UI
       - "4317"                           # OTLP gRPC default port
     environment:
       - METRICS_STORAGE_TYPE=prometheus
