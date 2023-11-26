@@ -32,6 +32,9 @@ exporters:
       insecure: true
       
   otlphttp/seq:
+    
+    # This is giving errors saying it cannot contact http://seq:5341/ingest/otlp/v1/logs/v1/logs so I think the v1 logs is added on automagically and should nto be done here. 
+    # endpoint: "http://seq:5341/ingest/otlp/v1/logs"
     endpoint: "http://seq:5341/ingest/otlp/v1/logs"
     tls:
       insecure: true
