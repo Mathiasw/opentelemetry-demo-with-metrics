@@ -30,6 +30,11 @@ exporters:
     endpoint: "http://prometheus:9090/api/v1/otlp"
     tls:
       insecure: true
+      
+  otlphttp/seq:
+    endpoint: "http://seq:5341/ingest/otlp/v1/logs"
+    tls:
+      insecure: true
 
 processors:
   batch:
@@ -65,5 +70,5 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/logs, debug]
+      exporters: [otlp/logs, otlphttp/seq, debug]
 
