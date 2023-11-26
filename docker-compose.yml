@@ -190,6 +190,7 @@ services:
       - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     logging: *logging
 
+  # Note no containername is specified for  dataprepper so it comes out as dataprepper-1
   dataprepper:
     image: opensearchproject/data-prepper:latest
     volumes:
