@@ -83,6 +83,9 @@ services:
     logging: *logging
 
   # Note no containername is specified for  dataprepper so it comes out as dataprepper-1
+  # The otelcollector sends logs to dataprepper on 21892 as well as (now) seq.
+  # The dataprepper pipelines sends dataprepper stuff to (I think) opensearch on 9200.
+  # I should probably look up what dataprepper and opensearch do and how they work.
   dataprepper:
     image: opensearchproject/data-prepper:latest
     volumes:
@@ -153,8 +156,8 @@ services:
         condition: service_started
       featureflagservice:
         condition: service_started
-      loadgenerator:
-        condition: service_started
+      # loadgenerator:
+      #   condition: service_started
       jaeger:
         condition: service_started
       grafana:
@@ -519,6 +522,8 @@ services:
       resources:
         limits:
           memory: 120M
+    profiles:
+      - loadgenerator
     restart: unless-stopped
     ports:
       - "${LOCUST_WEB_PORT}"

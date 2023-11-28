@@ -5,7 +5,32 @@ demo-pipeline:
   source:
     otel_logs_source:
       ssl: false
+      
+  # kv processor does not help    
+  # processor:
+  #  - key_value:
+  
+  processor:
+    # Does not work
+    - aggregate:
+        identification_keys: [ "HttpMethod" ]
+        action:
+          remove_duplicates:
+    
+    # Does not work
+    #- aggregate:
+    #    identification_keys: [ "log.attributes.HttpMethod" ]
+    #    action:
+    #      remove_duplicates:
+    
+    # Still does not work
+    #- aggregate:
+    #    identification_keys: [ "scope_logs.log_records.attributes.key.HttpMethod" ]
+    #    action:
+    #      remove_duplicates:
+  
   sink:
+    - stdout:
     - opensearch:
         hosts: ["http://opensearch:9200"]
         insecure: true
