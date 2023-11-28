@@ -118,7 +118,8 @@ generate-kubernetes-manifests:
 
 .PHONY: start
 start:
-	docker compose up --force-recreate --remove-orphans --detach
+	# docker compose --profile loadgenerator up --force-recreate --remove-orphans --detach
+	docker compose up --force-recreate --remove-orphans --detach 
 	@echo ""
 	@echo "OpenTelemetry Demo is running."
 	@echo "Go to http://localhost:8080 for the demo UI."
@@ -159,6 +160,6 @@ start-odd:
 
 .PHONY: stop
 stop:
-	docker compose down --remove-orphans --volumes
+	docker compose --profile loadgenerator down --remove-orphans --volumes
 	@echo ""
 	@echo "OpenTelemetry Demo is stopped."
