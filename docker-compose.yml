@@ -33,7 +33,7 @@ services:
     volumes:
       - "seq_data:/data"
     ports:
-      - "${SEQ_FRONTEND_OTELDEMO}:80"  
+      - "${SEQ_FRONTEND_OTELDEMO}:80"
       # - "80"
       - "${SEQ_COLLECTION_PORT_OTELDEMO}:5341" # Http over protobuf
   
