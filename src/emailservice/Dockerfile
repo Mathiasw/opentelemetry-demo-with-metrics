@@ -22,6 +22,5 @@ RUN chmod 666 ./Gemfile.lock
 
 COPY --from=builder /usr/local/bundle/ /usr/local/bundle/
 
-
 EXPOSE ${EMAIL_SERVICE_PORT}
 ENTRYPOINT ["bundle", "exec", "ruby", "email_server.rb"]
