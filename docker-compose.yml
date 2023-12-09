@@ -10,8 +10,17 @@ x-default-logging: &logging
 
 networks:
   default:
-    name: opentelemetry-demo
+    name: opentelemetry-demo_16
     driver: bridge
+
+volumes:
+  jaeger_data:
+    driver: local
+  seq_data:
+    driver: local
+  otel-col_data:
+    driver: local
+
 
 services:
   # ******************
@@ -20,7 +29,7 @@ services:
   # Accounting service
   accountingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-accountingservice
-    container_name: accounting-service
+    container_name: accounting-service_16
     build:
       context: ./
       dockerfile: ./src/accountingservice/Dockerfile
@@ -47,7 +56,7 @@ services:
   # AdService
   adservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
-    container_name: ad-service
+    container_name: ad-service_16
     build:
       context: ./
       dockerfile: ./src/adservice/Dockerfile
@@ -76,7 +85,7 @@ services:
   # Cart service
   cartservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
-    container_name: cart-service
+    container_name: cart-service_16
     build:
       context: ./
       dockerfile: ./src/cartservice/src/Dockerfile
@@ -106,7 +115,7 @@ services:
   # Checkout service
   checkoutservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
-    container_name: checkout-service
+    container_name: checkout-service_16
     build:
       context: ./
       dockerfile: ./src/checkoutservice/Dockerfile
@@ -154,7 +163,7 @@ services:
   # Currency service
   currencyservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
-    container_name: currency-service
+    container_name: currency-service_16
     build:
       context: ./src/currencyservice
       cache_from:
@@ -181,7 +190,7 @@ services:
   # Email service
   emailservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
-    container_name: email-service
+    container_name: email-service_16
     build:
       context: ./src/emailservice
       cache_from:
@@ -207,7 +216,7 @@ services:
   # Feature Flag service
   featureflagservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-featureflagservice
-    container_name: feature-flag-service
+    container_name: feature-flag-service_16
     build:
       context: ./
       dockerfile: ./src/featureflagservice/Dockerfile
@@ -238,7 +247,7 @@ services:
   # Fraud Detection service
   frauddetectionservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
-    container_name: frauddetection-service
+    container_name: frauddetection-service_16
     build:
       context: ./
       dockerfile: ./src/frauddetectionservice/Dockerfile
@@ -265,7 +274,7 @@ services:
   # Frontend
   frontend:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
-    container_name: frontend
+    container_name: frontend_16
     build:
       context: ./
       dockerfile: ./src/frontend/Dockerfile
@@ -319,7 +328,7 @@ services:
   # Frontend Proxy (Envoy)
   frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
-    container_name: frontend-proxy
+    container_name: frontend-proxy_16
     build:
       context: ./
       dockerfile: src/frontendproxy/Dockerfile
@@ -360,7 +369,7 @@ services:
   # Load Generator
   loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
-    container_name: load-generator
+    container_name: load-generator_16
     build:
       context: ./
       dockerfile: ./src/loadgenerator/Dockerfile
@@ -392,7 +401,7 @@ services:
   # Payment service
   paymentservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
-    container_name: payment-service
+    container_name: payment-service_16
     build:
       context: ./
       dockerfile: ./src/paymentservice/Dockerfile
@@ -419,7 +428,7 @@ services:
   # Product Catalog service
   productcatalogservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
-    container_name: product-catalog-service
+    container_name: product-catalog-service_16
     build:
       context: ./
       dockerfile: ./src/productcatalogservice/Dockerfile
@@ -447,7 +456,7 @@ services:
   # Quote service
   quoteservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
-    container_name: quote-service
+    container_name: quote-service_16
     build:
       context: ./
       dockerfile: ./src/quoteservice/Dockerfile
@@ -475,7 +484,7 @@ services:
   # Recommendation service
   recommendationservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
-    container_name: recommendation-service
+    container_name: recommendation-service_16
     build:
       context: ./
       dockerfile: ./src/recommendationservice/Dockerfile
@@ -510,7 +519,7 @@ services:
   # Shipping service
   shippingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
-    container_name: shipping-service
+    container_name: shipping-service_16
     build:
       context: ./
       dockerfile: ./src/shippingservice/Dockerfile
@@ -540,7 +549,7 @@ services:
   # Postgres used by Feature Flag service
   ffs_postgres:
     image: postgres:16.0
-    container_name: postgres
+    container_name: postgres_16
     user: postgres
     deploy:
       resources:
@@ -561,7 +570,7 @@ services:
   # Kafka used by Checkout, Accounting, and Fraud Detection services
   kafka:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
-    container_name: kafka
+    container_name: kafka_16
     build:
       context: ./
       dockerfile: ./src/kafka/Dockerfile
@@ -590,7 +599,7 @@ services:
   # Redis used by Cart service
   redis-cart:
     image: redis:7.2-alpine
-    container_name: redis-cart
+    container_name: redis-cart_16
     user: redis
     deploy:
       resources:
@@ -608,7 +617,7 @@ services:
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.50
-    container_name: jaeger
+    container_name: jaeger_16
     command:
       - "--memory.max-traces=8000"
       - "--query.base-path=/jaeger/ui"
@@ -630,7 +639,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana:10.1.2
-    container_name: grafana
+    container_name: grafana_16
     deploy:
       resources:
         limits:
@@ -645,9 +654,10 @@ services:
     logging: *logging
 
   # OpenTelemetry Collector
+  # Volumes: otel-col_data
   otelcol:
     image: otel/opentelemetry-collector-contrib:0.86.0
-    container_name: otel-col
+    container_name: otel-col_16
     deploy:
       resources:
         limits:
@@ -669,7 +679,7 @@ services:
   # Prometheus
   prometheus:
     image: quay.io/prometheus/prometheus:v2.47.0
-    container_name: prometheus
+    container_name: prometheus_16
     command:
       - --web.console.templates=/etc/prometheus/consoles
       - --web.console.libraries=/etc/prometheus/console_libraries
@@ -727,7 +737,7 @@ services:
   # Frontend Tests
   frontendTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend-tests
-    container_name: frontend-tests
+    container_name: frontend-tests_16
     build:
       context: ./
       dockerfile: ./src/frontend/Dockerfile.cypress
@@ -746,7 +756,7 @@ services:
   # Integration Tests
   integrationTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-integrationTests
-    container_name: integrationTests
+    container_name: integrationTests_16
     profiles:
       - tests
     build:
@@ -777,7 +787,7 @@ services:
   # Tracebased Tests
   traceBasedTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-traceBasedTests
-    container_name: traceBasedTests
+    container_name: traceBasedTests_16
     profiles:
       - tests
     build:
@@ -834,7 +844,7 @@ services:
   tracetest-server:
     image: kubeshop/tracetest:v0.13.10
     platform: linux/amd64
-    container_name: tracetest-server
+    container_name: tracetest-server_16
     profiles:
       - tests
     volumes:
@@ -862,7 +872,7 @@ services:
 
   tracetest-postgres:
     image: postgres:16.0
-    container_name: tracetest-postgres
+    container_name: tracetest-postgres_16
     profiles:
       - tests
     environment:
